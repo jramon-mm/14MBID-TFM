@@ -1,0 +1,35 @@
+# Check how many messages there are in each topic's partition
+kafka-run-class.sh kafka.tools.GetOffsetShell --broker-list localhost:9092 --topic clarella --time -1
+
+
+# *** START KAFKA **
+--------------------
+# Reset kafka data
+rm -rf /home/jramon/Kafka_3.5.0/logs/kraft/ /home/jramon/Kafka_3.5.0/logs/nodes/
+
+# Generate cluster UUID
+KAFKA_CLUSTER_ID="$(kafka-storage.sh random-uuid)"
+
+# Check cluster UUID
+echo $KAFKA_CLUSTER_ID
+
+# Format log directories
+kafka-storage.sh format -t $KAFKA_CLUSTER_ID -c /home/jramon/Kafka_3.5.0/config/kraft/server.properties
+
+# Start Kafka server
+kafka-server-start.sh /home/jramon/Kafka_3.5.0/config/kraft/server.properties
+--------------------
+
+# Create topic
+kafka-topics.sh --create --topic clarella --bootstrap-server localhost:9092
+kafka-topics.sh --create --topic elephant --bootstrap-server localhost:9092
+kafka-topics.sh --create --topic soilmoisture --bootstrap-server localhost:9092
+kafka-topics.sh --create --topic clarella --bootstrap-server localhost:9092 --partitions 3
+kafka-topics.sh --create --topic soil_moisture --bootstrap-server localhost:9092 --partitions 3
+
+
+# Execute consumer
+spark-submit --packages org.apache.spark:spark-sql-kafka-0-10_2.12:3.4.1 /home/jramon/Documents/consumers/kafka_clarella_consumer.py
+
+# Execute producer
+python /home/jramon/Documents/producer/xms_cat_clarella_sm_005.py
