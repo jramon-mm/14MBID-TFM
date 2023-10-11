@@ -1,5 +1,5 @@
 # Check how many messages there are in each topic's partition
-kafka-run-class.sh kafka.tools.GetOffsetShell --broker-list localhost:9092 --topic clarella --time -1
+kafka-run-class.sh kafka.tools.GetOffsetShell --broker-list localhost:9092 --topic soil_moisture --time -1
 
 
 # *** START KAFKA **
