@@ -5,7 +5,7 @@ import re
 import json
 import time
 
-FILENAME = '/home/jramon/Documents/ismn/xms_cat/clarella/input_headers/XMS-CAT_XMS-CAT_Clarella_sm_0.050000_0.050000_CS655_20230101_20230724.stm'
+FILENAME = '/home/jramon/Defensa/input/XMS-CAT_XMS-CAT_Clarella_sm_0.050000_0.050000_CS655_20230101_20230401.stm'
 
 def define_sensor_type():
 	sensor_type = ''
@@ -76,13 +76,21 @@ def read_and_send_data():
 			# Adding values line data to the message
 			complete_message(message, line)
 
+			# Adding sensor type
+			message['sensor_type'] = sensor_type
+
 			# Setting target topic
 			topic = sensor_type.lower().replace(' ', '_')
-			
+
+			msg_key = str(message['latitude']) + '_' + str(message['longitude']) + '_' + str(message['elevation'])
+
 			# Sending message and sleeping 10 seconds
-			producer.produce(topic, key=message['station'], value=json.dumps(message).encode('utf-8'))
+			producer.produce(topic, key=msg_key, value=json.dumps(message).encode('utf-8'))
 			print('A Message has been sent')
 			time.sleep(10)
+
+		# Closing file
+		f.close()
 
 		# Assuring that all messages are sent
 		producer.flush()
@@ -92,4 +100,3 @@ def main():
 
 if __name__ == '__main__':
 	main()
-
